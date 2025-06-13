@@ -1,81 +1,108 @@
-# x402 Payments Backend Example
+# x402 Payments Demo (Fullstack)
 
-This repository contains a simple backend server built with Express and TypeScript that demonstrates how to integrate [x402](https://x402.com) payments.
+This repository contains a fullstack application demonstrating how to use the [x402 Payment Protocol](https://x402.com). It includes:
 
-The server exposes a `/protected` endpoint that requires an on-chain payment to access.
+1.  **A Backend Server**: Built with Express and TypeScript, it exposes both a free public endpoint and a `/protected` endpoint that requires an on-chain payment.
+2.  **A Frontend Client**: A Next.js application that provides a user interface to test both the free and paid endpoints, handling the payment flow automatically.
 
-## Prerequisites
+## How It Works
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- An EVM-compatible wallet address to receive payments.
+The project demonstrates a complete client-server payment loop:
+
+1.  **Request**: The frontend client requests access to the `/protected` endpoint on the backend.
+2.  **Payment Required**: The backend server sees the request lacks payment and responds with an `HTTP 402 Payment Required` error, including the price and payment details in the headers.
+3.  **Automatic Payment**: The frontend, using the `x402-fetch` library, catches the 402 response, signs the required payment transaction using the user's configured private key, and retries the original request with the payment proof attached.
+4.  **Access Granted**: The backend server's middleware verifies the payment proof via the x402 facilitator and, if valid, grants access to the protected endpoint, returning the secret content.
+
+---
 
 ## Getting Started
 
-### 1. Clone the repository
+### Prerequisites
 
-If you haven't cloned it, do so. Otherwise, proceed to the next step.
+- [Node.js](https://nodejs.org/) (v18 or later)
+- An EVM-compatible wallet address to receive payments.
+- A second EVM-compatible wallet with **Base Sepolia testnet USDC** to act as the buyer.
 
-### 2. Install Dependencies
+### 1. Installation
 
-Install the project dependencies using npm:
+Install dependencies for both the backend and the frontend:
 
 ```bash
+# Install backend dependencies from the root directory
 npm install
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
 ```
 
-### 3. Configure Environment Variables
+### 2. Environment Configuration
 
-Create a `.env` file in the root of the project by copying the example:
+You will need to configure environment variables for both the backend and frontend.
+
+#### Backend Server
+
+The backend has been hardcoded to send payments to the following address:
+`0x3dC68cB6893A27fF29d03b208f500F821fe7beB4`
+
+No `.env` file is required for the backend to run.
+
+#### Frontend Client
+
+Create a `.env.local` file in the `/frontend` directory:
 
 ```bash
-cp .env.example .env
+touch frontend/.env.local
 ```
 
-Now, open the `.env` file and add your EVM-compatible wallet address:
+Open `frontend/.env.local` and add the private key of the wallet you intend to **pay from**.
 
-```
-# .env
+```env
+# /frontend/.env.local
 
-# Your EVM-compatible wallet address to receive payments
-# Example: "0x1234567890123456789012345678901234567890"
-RECIPIENT_ADDRESS="YOUR_WALLET_ADDRESS"
-
-# The port the server will run on (optional, defaults to 4020)
-# PORT=4020
+# Your private key for signing x402 payments (Base Sepolia testnet)
+# This wallet must have USDC on the Base Sepolia testnet.
+NEXT_PUBLIC_PRIVATE_KEY="0xYourTestnetPrivateKey"
 ```
 
-Replace `YOUR_WALLET_ADDRESS` with your actual wallet address.
+**Important Security Notes:**
+-   Only use **testnet** private keys. This is for demonstration purposes only.
+-   The `.env.local` file is already in `.gitignore` to prevent you from committing private keys.
 
-### 4. Run the Server
+### 3. Running the Application
 
-You can run the server in development mode, which will automatically restart on file changes:
+You'll need to run the backend and frontend in separate terminal windows.
+
+**Terminal 1: Start the Backend Server**
 
 ```bash
+# From the project root
 npm run dev
 ```
+The server will start on `http://localhost:5678`.
 
-The server will start on port 4020 (or the port you specified in `.env`).
-
-For production, first build the TypeScript code:
-
-```bash
-npm run build
-```
-
-Then run the compiled JavaScript:
+**Terminal 2: Start the Frontend Client**
 
 ```bash
-npm start
+# From the project root
+cd frontend
+npm run dev -- -p 5454
 ```
+The frontend will be available at `http://localhost:5454`.
 
-## Testing the Payment Flow
+### 4. Test the Integration
 
-Once the server is running, you can test the protected endpoint using `curl`:
+Open `http://localhost:5454` in your browser.
 
-```bash
-curl -v http://localhost:4020/protected
-```
+-   Click **"Test Free Endpoint"** to make a request to the root path (`/`) that doesn't require payment.
+-   Click **"Test Paid Endpoint"** to initiate the x402 payment flow to access `/protected`. If your paying wallet is configured correctly, the payment will be processed automatically.
 
-Because you haven't provided a payment, the server will respond with an `HTTP/1.1 402 Payment Required` status code. The response body will contain the necessary information for a client to make a payment.
+---
 
-To learn how to build a client that can handle this payment flow, check out the [x402 Quickstart for Buyers](https://x402.gitbook.io/x402/getting-started).
+## Tech Stack
+
+-   **Backend**: Express, TypeScript, `x402-express`
+-   **Frontend**: Next.js, React, TypeScript, Tailwind CSS, `x402-fetch`
+-   **Blockchain**: Payments are handled on the **Base Sepolia** testnet using USDC.
