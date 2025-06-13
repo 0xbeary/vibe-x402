@@ -1,0 +1,32 @@
+{
+  "name": "payments-stream",
+  "version": "1.0.0",
+  "description": "An example x402-enabled backend server.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "x402"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@coinbase/x402": "^0.3.8",
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "x402-express": "^0.3.4"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
