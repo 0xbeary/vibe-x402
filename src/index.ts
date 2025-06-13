@@ -10,7 +10,15 @@ const port = process.env.PORT || 5678;
 app.use(cors());
 
 // This is your wallet address where you'll receive payments
-const recipient = '0x3dC68cB6893A27fF29d03b208f500F821fe7beB4' as const;
+const recipient = process.env.RECIPIENT_ADDRESS as `0x${string}`;
+
+if (!recipient) {
+  throw new Error('RECIPIENT_ADDRESS is not set in the environment variables.');
+}
+
+if (!recipient.startsWith('0x')) {
+  throw new Error('RECIPIENT_ADDRESS must be a valid Ethereum address starting with 0x');
+}
 
 // Configure and apply the payment middleware globally
 app.use(paymentMiddleware(

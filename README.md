@@ -44,10 +44,20 @@ You will need to configure environment variables for both the backend and fronte
 
 #### Backend Server
 
-The backend has been hardcoded to send payments to the following address:
-`0x3dC68cB6893A27fF29d03b208f500F821fe7beB4`
+Create a `.env` file in the root of the project. You can copy the example file if it exists, or create a new one.
 
-No `.env` file is required for the backend to run.
+```bash
+touch .env
+```
+
+Open `.env` and add your receiving wallet address. This is the address that will collect the funds from the paid endpoint.
+
+```env
+# .env
+
+# Your EVM-compatible wallet address to receive payments
+RECIPIENT_ADDRESS="0xYourReceivingWalletAddress"
+```
 
 #### Frontend Client
 
